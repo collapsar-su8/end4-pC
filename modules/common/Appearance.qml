@@ -33,7 +33,10 @@ Singleton {
     property real autoContentTransparency: 0.9
     property real backgroundTransparency: Config?.options.appearance.transparency.enable ? Config?.options.appearance.transparency.automatic ? autoBackgroundTransparency : Config?.options.appearance.transparency.backgroundTransparency : 0
     property real contentTransparency: Math.max(glassContentTransparency, Config?.options.appearance.transparency.automatic ? autoContentTransparency : Config?.options.appearance.transparency.contentTransparency)
-    readonly property real glassContentTransparency: Config?.options.background.widgets.glass.enable ? 0.6 : 0
+    // 玻璃开启时内容的透明化比例上限 0.3（= 面板底色 alpha 0.7）。
+    // 原值 0.6（alpha 0.4）在亮壁纸上白字对比度仅 ~1.8:1，是"玻璃上文字看不清"的
+    // 根因；0.3 实测深浅两套主题在黑/白/中灰壁纸上全部 ≥4.5:1（WCAG AA）。
+    readonly property real glassContentTransparency: Config?.options.background.widgets.glass.enable ? 0.3 : 0
     
     function getColorFromName(name) {
         switch (name) {
@@ -219,6 +222,8 @@ Singleton {
         property color colErrorContainerHover: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.90)
         property color colErrorContainerActive: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.70)
         property color colOnErrorContainer: m3colors.m3onErrorContainer
+        // 玻璃模式数字墨色：深浅主题各一档，WCAG 对比度实测（见 dotfiles README）
+        readonly property color numberInkOnGlass: m3colors.darkmode ? "#DDE1E6" : "#2E3238"
     }
 
     rounding: QtObject {

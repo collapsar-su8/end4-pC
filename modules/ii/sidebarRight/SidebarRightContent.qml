@@ -154,18 +154,30 @@ Item {
         border.color: ColorUtils.transparentize(Appearance.colors.colLayer0Border, 0.8) 
         radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 5
 
-        ReorderableColumn {
-            id: sectionColumn
+        // 半屏高度后固定区块可能超出可视区：包一层 Flickable 允许纵向滚动。
+        // 编辑模式下禁用滚动（拖拽排序与滚动手势冲突）。
+        Flickable {
             anchors.fill: parent
             anchors.margins: sidebarPadding
-            itemSpacing: sidebarPadding
-            order: root.sectionOrder
-            editMode: root.editMode && root.editTab === "layout"
-            fillKey: "notifications"
-            fillMinHeight: 120
-            onReordered: newOrder => Config.options.sidebar.sectionOrder = newOrder
-            componentForKey: key => root.sectionComponents[key] ?? null
-            isKeyActive: key => root.sectionActive(key)
+            clip: true
+            contentWidth: width
+            contentHeight: sectionColumn.childrenRect.height
+            interactive: !root.editMode && contentHeight > height + 1
+            boundsBehavior: Flickable.StopAtBounds
+
+            ReorderableColumn {
+                id: sectionColumn
+                width: parent.width
+                height: parent.height
+                itemSpacing: sidebarPadding
+                order: root.sectionOrder
+                editMode: root.editMode && root.editTab === "layout"
+                fillKey: "notifications"
+                fillMinHeight: 120
+                onReordered: newOrder => Config.options.sidebar.sectionOrder = newOrder
+                componentForKey: key => root.sectionComponents[key] ?? null
+                isKeyActive: key => root.sectionActive(key)
+            }
         }
     }
 

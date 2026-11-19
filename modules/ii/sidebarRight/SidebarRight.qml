@@ -121,7 +121,10 @@ Scope {
             Item {
                 id: entranceWrapper
                 anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                // 高度只占可用区的上半（约半屏）：整屏高的侧栏压迫感强、可读性差。
+                // 通知区是内部可滚动的 ListView，其余区块均为固定高度，
+                // 减半后无需重排组件。比例式高度在 200% 等缩放下自动正确。
+                height: parent.height * 0.5
                 width: sidebarWidth
                 clip: true
 

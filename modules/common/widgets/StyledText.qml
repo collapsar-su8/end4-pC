@@ -18,7 +18,13 @@ Text {
         pixelSize: Appearance?.font.pixelSize.small ?? 15
         variableAxes: shouldUseNumberFont ? ({}) : Appearance.font.variableAxes.main
     }
-    color: Appearance?.m3colors.m3onBackground ?? "black"
+    // 玻璃模式下纯数字文本用固定墨色（深浅各一档，见 Appearance.colors.numberInkOnGlass），
+    // 其余场景维持主题前景色。被组件显式覆写 color 的文本不受此默认值影响。
+    readonly property bool useNumberInk: shouldUseNumberFont
+        && (Config?.options.background.widgets.glass.enable ?? false)
+    color: useNumberInk
+        ? (Appearance?.colors.numberInkOnGlass ?? Appearance?.m3colors.m3onBackground ?? "black")
+        : (Appearance?.m3colors.m3onBackground ?? "black")
     linkColor: Appearance?.m3colors.m3primary
 
     component Anim: NumberAnimation {
