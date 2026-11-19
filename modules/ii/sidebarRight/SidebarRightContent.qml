@@ -168,12 +168,16 @@ Item {
             ReorderableColumn {
                 id: sectionColumn
                 width: parent.width
-                height: parent.height
+                // 高度取「可视区」与「内容最低自然高度」的较大者：
+                // 装得下时通知区 expands 填满剩余，装不下时通知区保住
+                // fillFixedHeight 不被压扁，超出部分交给外层 Flickable 滚动。
+                height: Math.max(sectionScroller.height, sectionColumn.minNaturalHeight)
                 itemSpacing: sidebarPadding
                 order: root.sectionOrder
                 editMode: root.editMode && root.editTab === "layout"
                 fillKey: "notifications"
                 fillMinHeight: 120
+                fillFixedHeight: 300
                 onReordered: newOrder => Config.options.sidebar.sectionOrder = newOrder
                 componentForKey: key => root.sectionComponents[key] ?? null
                 isKeyActive: key => root.sectionActive(key)

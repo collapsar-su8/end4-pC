@@ -15,6 +15,22 @@ Item {
 
     property string fillKey: ""
     property real fillMinHeight: 60
+    // 弹性区块的固定高度。0 = 老行为（吸收剩余高度，内容超高时会被压到
+    // fillMinHeight，文字挤在一起）；>0 = 弹性区至少这个高度，配合调用方把
+    // 本组件 height 设为 max(可视区, minNaturalHeight)，装不下时交给外层
+    // Flickable 滚动，文字永远不被压缩。
+    property real fillFixedHeight: 0
+
+    // 固定区块高度之和（不含弹性区）。minNaturalHeight = 固定区块 +
+    // 弹性区最小高度，是"内容不被压缩"所需的最低高度。
+    readonly property real minNaturalHeight: {
+        let h = 0
+        const keys = root.workingOrder.filter(key => root.isShown(key) && key !== root.fillKey)
+        for (let i = 0; i < keys.length; i++) h += root.naturalHeight(keys[i]) + root.itemSpacing
+        if (root.fillKey && root.isShown(root.fillKey))
+            h += Math.max(root.fillMinHeight, root.fillFixedHeight)
+        return h
+    }
 
     signal reordered(var newOrder)
     property var componentForKey: function(key) { return null }
@@ -67,7 +83,7 @@ Item {
             if (keys[i] !== root.fillKey) others += root.naturalHeight(keys[i])
         }
         const remaining = root.height - others - Math.max(0, keys.length - 1) * root.itemSpacing
-        return Math.max(root.fillMinHeight, remaining)
+        return Math.max(Math.max(root.fillMinHeight, root.fillFixedHeight), remaining)
     }
 
     function yForKey(key) {
